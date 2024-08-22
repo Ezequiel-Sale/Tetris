@@ -34,36 +34,58 @@ function App() {
         [1, 1],
         [1, 1],
       ],
+      color: "orange",
     };
 
     const PIECES = [
-      [
-        [1, 1],
-        [1, 1],
-      ],
-      [[1, 1, 1, 1]],
-      [
-        [0, 1, 0],
-        [1, 1, 1],
-      ],
-      [
-        [1, 1, 0],
-        [0, 1, 1],
-      ],
-      [
-        [1, 0],
-        [1, 0],
-        [1, 1],
-      ],
-      [
-        [0, 1],
-        [0, 1],
-        [1, 1],
-      ],
-      [
-        [0, 1, 1],
-        [1, 1, 0],
-      ],
+      {
+        shape: [
+          [1, 1],
+          [1, 1],
+        ],
+        color: "yellow",
+      },
+      {
+        shape: [[1, 1, 1, 1]],
+        color: "cyan",
+      },
+      {
+        shape: [
+          [0, 1, 0],
+          [1, 1, 1],
+        ],
+        color: "purple",
+      },
+      {
+        shape: [
+          [1, 1, 0],
+          [0, 1, 1],
+        ],
+        color: "green",
+      },
+      {
+        shape: [
+          [1, 0],
+          [1, 0],
+          [1, 1],
+        ],
+        color: "red",
+      },
+      {
+        shape: [
+          [0, 1],
+          [0, 1],
+          [1, 1],
+        ],
+        color: "blue",
+      },
+      {
+        shape: [
+          [0, 1, 1],
+          [1, 1, 0],
+        ],
+        color: "orange",
+      },
     ];
 
     let dropCounter = 0;
@@ -93,24 +115,25 @@ function App() {
     function draw() {
       context.fillStyle = "#000";
       context.fillRect(0, 0, canvas.width, canvas.height);
-
+    
       board.forEach((row, y) => {
         row.forEach((value, x) => {
-          if (value === 1) {
-            context.fillStyle = "yellow";
+          if (value) {
+            context.fillStyle = value; 
             context.fillRect(x, y, 1, 1);
           }
         });
       });
+    
       piece.shape.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value) {
-            context.fillStyle = "red";
+            context.fillStyle = piece.color;
             context.fillRect(piece.position.x + x, piece.position.y + y, 1, 1);
           }
         });
       });
-
+    
       $score.innerText = score;
     }
 
@@ -181,15 +204,17 @@ function App() {
       piece.shape.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value === 1) {
-            board[y + piece.position.y][x + piece.position.x] = 1;
+            board[y + piece.position.y][x + piece.position.x] = piece.color;
           }
         });
       });
-
+    
       piece.position.x = Math.floor(BOARD_WIDTH / 2 - 2);
       piece.position.y = 0;
-      piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)];
-
+      const randomIndex = Math.floor(Math.random() * PIECES.length);
+      piece.shape = PIECES[randomIndex].shape;
+      piece.color = PIECES[randomIndex].color;
+    
       if (checkcollision()) {
         Swal.fire({
           title: "Perdiste!",
@@ -219,7 +244,7 @@ function App() {
       const rowsToRemove = [];
 
       board.forEach((row, y) => {
-        if (row.every((value) => value === 1)) {
+        if (row.every((value) => value !== 0)) {
           rowsToRemove.push(y);
         }
       });
@@ -250,7 +275,6 @@ function App() {
         </strong>
         <div>
             <section>
-            <img src="./tetris.jpg" alt="" />
               <span>COMENZAR JUEGO</span>
             </section>
           <canvas></canvas>
