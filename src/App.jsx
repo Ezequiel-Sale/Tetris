@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Swal from "sweetalert2";
 
 function App() {
   const [score, setScore] = useState(0);
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   useEffect(() => {
     const canvas = document.querySelector("canvas");
     const context = canvas.getContext("2d");
@@ -115,16 +118,16 @@ function App() {
     function draw() {
       context.fillStyle = "#000";
       context.fillRect(0, 0, canvas.width, canvas.height);
-    
+      drawGuideLines();
       board.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value) {
-            context.fillStyle = value; 
+            context.fillStyle = value;
             context.fillRect(x, y, 1, 1);
           }
         });
       });
-    
+
       piece.shape.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value) {
@@ -133,8 +136,30 @@ function App() {
           }
         });
       });
-    
+
       $score.innerText = score;
+    }
+
+    function drawGuideLines() {
+      // Líneas guía verticales (blancas)
+      context.strokeStyle = "white";
+      context.lineWidth = 0.02;
+      for (let x = 0; x < BOARD_WIDTH; x++) {
+        context.beginPath();
+        context.moveTo(x, 0);
+        context.lineTo(x, BOARD_HEIGHT);
+        context.stroke();
+      }
+
+      // Líneas guía horizontales (gris oscuro)
+      context.strokeStyle = "#333";
+      context.lineWidth = 0.05;
+      for (let y = 0; y < BOARD_HEIGHT; y++) {
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(BOARD_WIDTH, y);
+        context.stroke();
+      }
     }
 
     function adjustSpeed() {
@@ -208,13 +233,13 @@ function App() {
           }
         });
       });
-    
+
       piece.position.x = Math.floor(BOARD_WIDTH / 2 - 2);
       piece.position.y = 0;
       const randomIndex = Math.floor(Math.random() * PIECES.length);
       piece.shape = PIECES[randomIndex].shape;
       piece.color = PIECES[randomIndex].color;
-    
+
       if (checkcollision()) {
         Swal.fire({
           title: "Perdiste!",
@@ -264,19 +289,68 @@ function App() {
       const audio = new window.Audio("./tetris.mp3");
       audio.volume = 0.5;
       audio.play();
+      audioRef.current = audio;
+      setIsPlaying(true);
     });
   }, []);
-
+  function togglePlayPause() {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  }
   return (
     <>
       <div>
-        <strong className="score">
-          Puntuación: <span>{score}</span>
-        </strong>
+        <div className="score-container">
+          <strong className="score">
+            Puntuación: <span>{score}</span>
+          </strong>
+          <button onClick={togglePlayPause}>
+            {isPlaying ? (
+              <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M15 8a5 5 0 0 1 0 8" />
+              <path d="M17.7 5a9 9 0 0 1 0 14" />
+              <path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />
+            </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />
+                <path d="M16 10l4 4m0 -4l-4 4" />
+              </svg>
+            )}
+          </button>
+        </div>
         <div>
-            <section>
-              <span>COMENZAR JUEGO</span>
-            </section>
+          <section>
+            <span>COMENZAR JUEGO</span>
+          </section>
           <canvas></canvas>
         </div>
         <div className="controls">

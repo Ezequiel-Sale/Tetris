@@ -79,3 +79,15 @@ section {
   user-select: none;
   margin-top: 5px;
 }
+
+.score-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  & button {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
+}
